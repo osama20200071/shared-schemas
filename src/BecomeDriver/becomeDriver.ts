@@ -8,7 +8,7 @@ export const VinLookupCarDataSchema = z
     Model: z.string().min(1),
     ModelYear: z.string().min(1),
     FuelTypePrimary: z.string().min(1),
-    FuelTypeSecondary: z.string().optional(), // can be empty
+    FuelTypeSecondary: z.string(), // can be empty
   })
   .passthrough(); // allow extra keys from API
 
