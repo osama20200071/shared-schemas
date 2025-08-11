@@ -1,26 +1,53 @@
-name: CI - Build The Package on Push
+name: Build and Push Dist Branch
 
 on:
   push:
     branches:
       - main
-      - master
+
+permissions:
+  contents: write
 
 jobs:
-  build:
+  build-dist:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout main branch
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
+      - name: Build project (JS + types)
         run: npm run build
+
+      - name: Prepare clean dist branch
+        run: |
+          # Make sure dist exists
+          if [ ! -d dist ]; then
+            echo "❌ dist folder not found. Did the build script run?"
+            exit 1
+          fi
+
+          # Copy only what we need
+          cp package.json dist/
+          if [ -f README.md ]; then cp README.md dist/; fi
+
+          cd dist
+          git init
+          git checkout -b dist
+          git add *.js *.d.ts package.json README.md 2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: build dist from main"
+          git push --force "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
