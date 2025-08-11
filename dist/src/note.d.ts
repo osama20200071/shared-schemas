@@ -4,11 +4,11 @@ export declare const noteSchema: z.ZodObject<{
     title: z.ZodString;
     description: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    id?: string;
-    title?: string;
-    description?: string;
+    id: string;
+    title: string;
+    description: string;
 }, {
-    id?: string;
-    title?: string;
-    description?: string;
+    id: string;
+    title: string;
+    description: string;
 }>;

@@ -4,12 +4,12 @@ export declare const userSchema: z.ZodObject<{
     name: z.ZodString;
     email: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    id?: string;
-    name?: string;
-    email?: string;
+    id: string;
+    name: string;
+    email: string;
 }, {
-    id?: string;
-    name?: string;
-    email?: string;
+    id: string;
+    name: string;
+    email: string;
 }>;
 export type User = z.infer<typeof userSchema>;
