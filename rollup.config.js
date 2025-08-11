@@ -1,6 +1,3 @@
-import typescript from 'rollup-plugin-typescript2';
-import resolve from '@rollup/plugin-node-resolve';
-
 export default {
   input: 'index.ts',
   output: [
@@ -15,7 +12,7 @@ export default {
       sourcemap: false,
     },
   ],
-  external: [],
+  external: ['zod'], // <- mark external dependencies here
   plugins: [
     resolve(),
     typescript({
@@ -24,7 +21,8 @@ export default {
         compilerOptions: {
           declaration: true,
           declarationDir: 'dist/types',
-          outDir: 'dist/temp', // temporary folder Rollup uses internally
+          outDir: 'dist/temp',
+          moduleResolution: 'node', // add this explicitly
         },
       },
     }),
