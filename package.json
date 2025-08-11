@@ -1,0 +1,19 @@
+{
+  "name": "shared-schemas",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "module": "index.esm.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "index.js",
+    "index.esm.js",
+    "types"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "zod": "^3.25.36"
+  }
+}
