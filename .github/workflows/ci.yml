@@ -31,22 +31,21 @@ jobs:
 
       - name: Prepare clean dist branch
         run: |
-          # Make sure dist exists
           if [ ! -d dist ]; then
             echo "❌ dist folder not found. Did the build script run?"
             exit 1
           fi
 
-          # Copy only what we need
           cp package.json dist/
           if [ -f README.md ]; then cp README.md dist/; fi
 
           cd dist
           git init
           git checkout -b dist
-          git add *.js *.d.ts package.json README.md 2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Add everything recursively — ensures src/ and all nested .js/.d.ts are included
+          git add -A
           git commit -m "chore: build dist from main"
           git push --force "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" dist
         env:
