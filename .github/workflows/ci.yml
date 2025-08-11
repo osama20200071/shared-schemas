@@ -40,14 +40,20 @@ jobs:
           cp package.json dist/
           if [ -f README.md ]; then cp README.md dist/; fi
 
-          # Rewrite package.json for the dist branch
+          # Rewrite package.json for dist branch
           node -e "
           const fs = require('fs');
-          const pkg = JSON.parse(fs.readFileSync('dist/package.json', 'utf8'));
+          const pkgPath = 'dist/package.json';
+          const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
           pkg.main = 'index.js';
           pkg.types = 'index.d.ts';
-          pkg.files = ['*.js', '*.d.ts'];
-          fs.writeFileSync('dist/package.json', JSON.stringify(pkg, null, 2));
+          pkg.files = [
+            '*.js',
+            '*.d.ts',
+            'src/**/*.js',
+            'src/**/*.d.ts'
+          ];
+          fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
           "
 
           # Push dist folder as a separate branch
