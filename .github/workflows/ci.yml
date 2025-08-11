@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -26,44 +26,37 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
+      - name: Build bundled package
         run: npm run build
 
       - name: Prepare dist branch
         run: |
-          if [ ! -d dist ]; then
-            echo "❌ dist folder not found. Did the build script run?"
-            exit 1
-          fi
-
-          # Copy package.json & README.md into dist/
           cp package.json dist/
           if [ -f README.md ]; then cp README.md dist/; fi
 
-          # Rewrite package.json for dist branch
+          # Rewrite package.json inside dist to keep only needed fields
           node -e "
-          const fs = require('fs');
-          const pkgPath = 'dist/package.json';
-          const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-          pkg.main = 'index.js';
-          pkg.types = 'index.d.ts';
-          pkg.files = [
-            '*.js',
-            '*.d.ts',
-            'src/**/*.js',
-            'src/**/*.d.ts'
-          ];
-          fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+            const fs = require('fs');
+            const path = require('path');
+            const distPkgPath = path.resolve('dist/package.json');
+            const pkg = JSON.parse(fs.readFileSync(distPkgPath, 'utf8'));
+            pkg.main = 'index.js';
+            pkg.module = 'index.esm.js';
+            pkg.types = 'types/index.d.ts';
+            pkg.files = ['index.js', 'index.esm.js', 'types'];
+            // Remove scripts, devDependencies, and other unnecessary fields for consumers
+            delete pkg.scripts;
+            delete pkg.devDependencies;
+            fs.writeFileSync(distPkgPath, JSON.stringify(pkg, null, 2));
           "
 
-          # Push dist folder as a separate branch
           cd dist
           git init
           git checkout -b dist
           git add -A
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: build dist from main"
+          git commit -m "chore: build bundled dist from main"
           git push --force "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
